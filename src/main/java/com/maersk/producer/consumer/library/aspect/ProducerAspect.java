@@ -1,12 +1,9 @@
 package com.maersk.producer.consumer.library.aspect;
 
-import com.maersk.producer.consumer.library.kafka.KafkaProducer;
 import com.maersk.producer.consumer.library.services.MessagePublisherService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -26,9 +24,6 @@ public class ProducerAspect <T> {
 
     @Autowired
     private ApplicationContext context;
-
-    @Autowired
-    private KafkaProducer <T> producer;
 
     @Autowired
     private MessagePublisherService<T> messagePublisherService;
@@ -59,15 +54,13 @@ public class ProducerAspect <T> {
             joinPoint.proceed();
             if (Objects.nonNull(args[0]))
             {
+                log.info("Message present and adding to producer record");
                 var headerCount = context.getEnvironment().resolvePlaceholders(KAFKA_HEADERS_COUNT);
                 var producerTopic = context.getEnvironment().resolvePlaceholders(NOTIFICATION_TOPIC);
                 ProducerRecord<String, T> producerRecord = new ProducerRecord<>(producerTopic, (T) args[0]);
-                var headCount = getValidHeaderCount(headerCount);
-                if (headCount > 0)
-                {
-                    addKafkaHeaders(producerRecord.headers(), headCount, args);
-                }
-                messagePublisherService.publishOnTopic(producerRecord);
+                log.info("After adding message to producer record");
+                addValidHeadersFromMap(args, producerRecord.headers());
+                messagePublisherService.publishMessageToKafka(producerRecord);
             }
 
         } catch (Exception e)
@@ -104,7 +97,7 @@ public class ProducerAspect <T> {
         }
     }
 
-    private void addKafkaHeaders(Headers headers, int headerCount, Object[] args)
+    private void addKafkaHeaders(Headers headers, Object[] args)
     {
         var headersFromAppContext = Arrays.asList(context.getEnvironment().resolvePlaceholders(KAFKA_HEADERS).split(","));
         log.info("headersFromAppContext: {}", headersFromAppContext);
@@ -114,12 +107,6 @@ public class ProducerAspect <T> {
            headers.add(header, args[count].toString().getBytes(StandardCharsets.UTF_8));
         }
         log.info("headers after 1st loop: {}", headers);
-
-        for (int i =1; i <headerCount+1; i++)
-        {
-            headers.add(headersFromAppContext.get(i-1), args[i].toString().getBytes(StandardCharsets.UTF_8));
-        }
-        log.info("headers after 2nd loop: {}", headers);
     }
 
     private void buildKafkaHeaders(String event, Headers headers, Object[] args)
@@ -141,5 +128,15 @@ public class ProducerAspect <T> {
             return Integer.parseInt(headerCount);
         }
         return 0;
+    }
+
+    private void addValidHeadersFromMap(Object[] args, Headers headers)
+    {
+        if (Objects.nonNull(args[1]))
+        {
+            var headerMap = (Map<String, Object>)args[1];
+            headerMap.forEach((key, value) -> headers.add(key, value.toString().getBytes(StandardCharsets.UTF_8)));
+        }
+        log.info("Final headers map: {}", headers);
     }
 }
