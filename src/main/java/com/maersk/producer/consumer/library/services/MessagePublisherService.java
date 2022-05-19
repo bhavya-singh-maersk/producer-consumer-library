@@ -33,7 +33,7 @@ public class MessagePublisherService<T>{
 
     private static final String RETRY_TOPIC = "${kafka.retry.topic}";
 
-   // @Retryable(value = {MessagePublishException.class, Exception.class}, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
+   @Retryable(value = {MessagePublishException.class, Exception.class}, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
     public void publishMessageToKafka(ProducerRecord<String, T> producerRecord)
     {
         log.info("Inside publishMessageToKafka");

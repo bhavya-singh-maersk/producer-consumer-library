@@ -7,4 +7,6 @@ public interface KafkaProducerService <T> {
     void sendMessage(T message, T kafkaHeader);
 
     void sendMessage(T message, Map<String,Object> kafkaHeader);
+
+    void sendMessage(String eventName, T message, Map<String,Object> kafkaHeader);
 }

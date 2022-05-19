@@ -1,4 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.maersk.producer.consumer.library.kafka.KafkaProducer,\
+com.maersk.producer.consumer.library.services.KafkaProducerServiceImpl,\
 com.maersk.producer.consumer.library.services.MessagePublisherService,\
-com.maersk.producer.consumer.library.aspect.ProducerAspect
+com.maersk.producer.consumer.library.aspect.ProducerAspect,\
+com.maersk.producer.consumer.library.services.StorageConnectionFactory,\
+com.maersk.producer.consumer.library.services.AzureBlobStorageService,\
+com.maersk.producer.consumer.library.config.KafkaBaseConsumerConfig
