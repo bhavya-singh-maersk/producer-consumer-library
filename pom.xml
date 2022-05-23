@@ -58,7 +58,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aspects</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>com.azure.spring</groupId>
 			<artifactId>azure-spring-boot-starter-storage</artifactId>
 			<version>3.14.0</version>
@@ -67,13 +67,39 @@
 			<groupId>com.microsoft.azure</groupId>
 			<artifactId>azure-storage</artifactId>
 			<version>8.4.0</version>
+		</dependency>-->
+		<!-- https://mvnrepository.com/artifact/com.azure/azure-storage-blob -->
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-storage-blob</artifactId>
+			<version>12.16.1</version>
 		</dependency>
+
+
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20220320</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apereo.cas/cas-server-core-util -->
+		<dependency>
+			<groupId>org.apereo.cas</groupId>
+			<artifactId>cas-server-core-util</artifactId>
+			<version>6.5.4</version>
+			<!--<scope>test</scope>-->
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+
 
 	</dependencies>
 
