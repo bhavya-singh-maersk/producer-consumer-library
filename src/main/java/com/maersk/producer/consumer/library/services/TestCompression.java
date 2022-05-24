@@ -1,23 +1,21 @@
 package com.maersk.producer.consumer.library.services;
 
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
 import lombok.extern.slf4j.Slf4j;
+import net.apmoller.ohm.adapter.avro.model.EventNotificationsAdapterModel;
 import org.apereo.cas.util.CompressionUtils;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.json.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 @Slf4j
 public class TestCompression {
 
-    public static void testCompression()
+    public static void testJsonCompression()
     {
         String originalPayload = "{\n" +
                 "\t\"db_response\": {\n" +
@@ -90,8 +88,26 @@ public class TestCompression {
         log.info("Decompressed payload: {} size: {} bytes",decompressedPayload, decompressedPayload.getBytes(StandardCharsets.UTF_8).length);
     }
 
-    public static void main(String[] args) throws IOException, ParseException {
-        testCompression();
+    public static void testAvroCompression()
+    {
+        CustomAvroSerializer avroSerializer = new CustomAvroSerializer();
+        CustomAvroDeserializer avroDeserializer = new CustomAvroDeserializer();
+        String testPayload = "{\n" +
+                "    \"response\": \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <db_response type=\\\"db_extract_package\\\" version=\\\"2\\\" revision=\\\"0\\\"> <response error=\\\"0\\\" returncode=\\\"0\\\" origin=\\\"DMS:SCRBDBKDK007206\\\"> <returnstring source=\\\"Docengine\\\">Added ply [1] by index</returnstring> </response> <container> <archive save=\\\"true\\\" doctype=\\\"\\\" docid=\\\"RNKT00003\\\" expirydate=\\\"2022-10-04\\\"><domain>WCAIND</domain><code>0A732E774E34615B25315973EA2C</code><index_s>2ab97fda-55dd-4ae3-a379-88f45e0a3b37</index_s><index_m>43e4be58-9c54-493f-ad40-6847bad741a5</index_m></archive></container></db_response>\"\n" +
+                "}";
+        JSONObject response = new JSONObject(testPayload);
+        EventNotificationsAdapterModel avro= EventNotificationsAdapterModel.newBuilder()
+                .setResponse(response.get("response").toString())
+                .setCorrelationId("corId").setMessageType("xml").setMessageId("dfdf-dfd")
+                .setSourceSystem("docbroker").setResponseConsumers(Collections.emptyList()).build();
+        log.info("Original avro payload size: {} bytes", avro.toString().getBytes(StandardCharsets.UTF_8).length);
+        var byteArray = avroSerializer.serialize(null, null, avro);
+        avroDeserializer.deserialize(null, null, byteArray);
+    }
+
+    public static void main(String[] args) {
+        //testJsonCompression();
+        testAvroCompression();
     }
 
 
