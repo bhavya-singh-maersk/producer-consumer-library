@@ -22,12 +22,13 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Base64;
 
 @Slf4j
 @Component
 public class CustomAvroSerializer extends KafkaAvroSerializer {
 
-    /*@SneakyThrows
+    @SneakyThrows
     @Override
     public byte[] serialize(String topic, Headers headers, Object data) {
         Schema schema = ReflectData.get().getSchema(data.getClass());
@@ -38,12 +39,11 @@ public class CustomAvroSerializer extends KafkaAvroSerializer {
                 .setCodec(CodecFactory.deflateCodec(9))
                 .create(schema, outputStream)) {
             dataFileWriter.append((GenericRecord) data);
-            log.info("compressed avro payload size: {} bytes", outputStream.toByteArray().length);
         }
-        return outputStream.toByteArray();
-    }*/
+        return Base64.getEncoder().encode(outputStream.toByteArray());
+    }
 
-    @SneakyThrows
+   /* @SneakyThrows
     @Override
     public byte[] serialize(String topic, Headers headers, Object data) {
         Schema schema = ReflectData.get().getSchema(data.getClass());
@@ -56,5 +56,5 @@ public class CustomAvroSerializer extends KafkaAvroSerializer {
         outputStream.close();
         log.info("compressed avro payload size: {} bytes", outputStream.toByteArray().length);
         return outputStream.toByteArray();
-    }
+    }*/
 }
